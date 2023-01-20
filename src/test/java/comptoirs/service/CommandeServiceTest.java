@@ -9,6 +9,8 @@ import java.math.BigDecimal;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+import comptoirs.dao.*;
+import comptoirs.entity.*;
 @SpringBootTest
  // Ce test est basé sur le jeu de données dans "test_data.sql"
 class CommandeServiceTest {
@@ -18,7 +20,10 @@ class CommandeServiceTest {
     private static final BigDecimal REMISE_POUR_GROS_CLIENT = new BigDecimal("0.15");
 
     @Autowired
+    // L'objet à tester
     private CommandeService service;
+    @Autowired
+    ProduitRepository produitDao;
     @Test
     void testCreerCommandePourGrosClient() {
         var commande = service.creerCommande(ID_GROS_CLIENT);
@@ -40,5 +45,13 @@ class CommandeServiceTest {
         var commande = service.creerCommande(ID_PETIT_CLIENT);
         assertEquals(VILLE_PETIT_CLIENT, commande.getAdresseLivraison().getVille(),
             "On doit recopier l'adresse du client dans l'adresse de livraison");
-    }   
+    }
+
+    void testDecrementerStock(){
+        var produit = produitDao.findById(98).orElseThrow();
+        int stockAvant = produit.getUnitesEnStock();
+        service.enregistreExpédition(99998);
+        produit = produitDao.findById(98).orElseThrow();
+        assertEquals(stockAvant-10,produit.getUnitesEnStock(),"on doit décrémenter le stock de 20 unités");
+    }
 }
