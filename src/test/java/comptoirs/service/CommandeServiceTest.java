@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -47,11 +48,19 @@ class CommandeServiceTest {
             "On doit recopier l'adresse du client dans l'adresse de livraison");
     }
 
+    @Test
     void testDecrementerStock(){
         var produit = produitDao.findById(98).orElseThrow();
         int stockAvant = produit.getUnitesEnStock();
         service.enregistreExpédition(99998);
         produit = produitDao.findById(98).orElseThrow();
-        assertEquals(stockAvant-10,produit.getUnitesEnStock(),"on doit décrémenter le stock de 20 unités");
+        assertEquals(stockAvant-20,produit.getUnitesEnStock(),"on doit décrémenter le stock de 20 unités");
     }
+
+    @Test
+    void testDateEnvoie(){
+        var commandeEnvoyee = service.enregistreExpédition(99998);
+        assertEquals(LocalDate.now(),commandeEnvoyee.getEnvoyeele(),"La date d'envoie n'est pas celle du jour actuel");
+    }
+
 }
